@@ -9,8 +9,7 @@ class ObjectAdapter extends TypeAdapter<Object> {
     try {
       var numOfFields = reader.readByte();
       return {
-        for (var i = 0; i < numOfFields; i++)
-          'field ${reader.readByte()}': reader.read(),
+        for (var i = 0; i < numOfFields; i++) 'field ${reader.readByte()}': reader.read(),
       };
     } catch (e) {
       return Uint8List.fromList(bytes);
@@ -21,4 +20,7 @@ class ObjectAdapter extends TypeAdapter<Object> {
   void write(BinaryWriter writer, Object obj) {
     throw UnimplementedError();
   }
+
+  @override
+  int get typeId => 0;
 }

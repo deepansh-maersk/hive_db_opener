@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:studio/app_state.dart';
 import 'package:studio/path_view.dart';
+import 'package:flutter/services.dart';
 
 class DataExplorer extends StatelessWidget {
   @override
@@ -9,7 +10,7 @@ class DataExplorer extends StatelessWidget {
     var app = Provider.of<AppState>(context);
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 900),
+        constraints: BoxConstraints(maxWidth: 2000),
         child: Card(
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
@@ -28,23 +29,6 @@ class DataExplorer extends StatelessWidget {
                     Expanded(
                       child: PathView(),
                     ),
-                    if (false)
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 250),
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30)),
-                            ),
-                            hintText: 'Search the box',
-                            contentPadding: EdgeInsets.fromLTRB(20, 8, 12, 8),
-                          ),
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -55,8 +39,7 @@ class DataExplorer extends StatelessWidget {
                         itemCount: app.entries.length,
                         itemBuilder: (context, index) {
                           var mapEntry = app.entries.entries.elementAt(index);
-                          return EntryWidget(
-                              mapEntry.key.toString(), mapEntry.value);
+                          return EntryWidget(mapEntry.key.toString(), mapEntry.value);
                         },
                       ),
                     ),
@@ -90,12 +73,14 @@ class EntryWidget extends StatelessWidget {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 1, color: Colors.grey[300]),
+        side: BorderSide(width: 1, color: Colors.grey.shade300),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {},
+        onTap: () async {
+          await Clipboard.setData(ClipboardData(text: value.toString()));
+        },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Row(
@@ -110,9 +95,11 @@ class EntryWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                value.toString(),
-                style: TextStyle(fontSize: 16),
+              Expanded(
+                child: Text(
+                  value.toString(),
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),

@@ -14,15 +14,17 @@ class FileUpload extends StatefulWidget {
 }
 
 class _FileUploadState extends State<FileUpload> {
-  StreamSubscription _dragOverSubscription;
-  StreamSubscription _dropSubscription;
+  late StreamSubscription _dragOverSubscription;
+  late StreamSubscription _dropSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    _dropSubscription = document.body.onDragOver.listen(_onDragOver);
-    _dropSubscription = document.body.onDrop.listen(_onDrop);
+    if (document.body != null) {
+      _dropSubscription = document.body!.onDragOver.listen(_onDragOver);
+      _dropSubscription = document.body!.onDrop.listen(_onDrop);
+    }
   }
 
   void _onDragOver(MouseEvent event) {
@@ -35,21 +37,23 @@ class _FileUploadState extends State<FileUpload> {
     event.preventDefault();
 
     var files = event.dataTransfer.files;
-    if (files.isEmpty) return;
+    if (files != null && files.isEmpty) return;
 
-    var file = files.first;
-    var reader = FileReader();
-    reader.onLoadEnd.listen((e) {
-      _process(file.name, reader.result as Uint8List);
-    });
-    reader.readAsArrayBuffer(file);
+    if (files != null) {
+      var file = files.first;
+      var reader = FileReader();
+      reader.onLoadEnd.listen((e) {
+        _process(file.name, reader.result as Uint8List);
+      });
+      reader.readAsArrayBuffer(file);
+    }
 
     var appState = Provider.of<AppState>(context);
     appState.status = UploadStatus.processing;
   }
 
   void _process(String name, Uint8List bytes) {
-    var appState = Provider.of<AppState>(context);
+    var appState = Provider.of<AppState>(context, listen: false);
     scheduleMicrotask(() async {
       try {
         var box = await Hive.openBox('box', bytes: bytes);
@@ -69,8 +73,7 @@ class _FileUploadState extends State<FileUpload> {
     switch (app.status) {
       case UploadStatus.none:
         return Center(
-          child:
-              Text('Drop a .hive file to begin\n\n(This is a preview version)'),
+          child: Text('Drop a .hive file to begin\n\n(This is a preview version)'),
         );
       case UploadStatus.processing:
         return Center(
@@ -84,13 +87,12 @@ class _FileUploadState extends State<FileUpload> {
       case UploadStatus.success:
         return DataExplorer();
     }
-    return Container();
   }
 
   @override
   void dispose() {
-    _dragOverSubscription?.cancel();
-    _dropSubscription?.cancel();
+    _dragOverSubscription.cancel();
+    _dropSubscription.cancel();
     super.dispose();
   }
 }
