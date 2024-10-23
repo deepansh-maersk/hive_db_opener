@@ -21,6 +21,10 @@ class ObjectAdapter extends TypeAdapter<Object> {
     throw UnimplementedError();
   }
 
+  final int _typeId;
+
+  ObjectAdapter(this._typeId);
+
   @override
-  int get typeId => 0;
+  int get typeId => _typeId;
 }

@@ -6,7 +6,9 @@ import 'package:studio/file_upload.dart';
 import 'package:studio/object_adapter.dart';
 
 void main() {
-  Hive.registerAdapter(ObjectAdapter());
+  for (var i = 0; i < 224; i++) {
+    Hive.registerAdapter(ObjectAdapter(i));
+  }
   runApp(MyApp());
 }
 
